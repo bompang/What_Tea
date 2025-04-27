@@ -1,0 +1,166 @@
+# 요청한 대로 결과 문구를 심플하게 수정
+# "당신이 고른 차는 [차 이름]입니다." 형태로
+
+# 수정된 HTML 코드 생성
+cafe_simple_result_html = """
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>당신에게 알맞은 차를 골라드려요.</title>
+  <style>
+    body {
+      background: #f8f5f0;
+      font-family: 'Cafe24SsurroundAir', sans-serif;
+      color: #4e342e;
+      text-align: center;
+      padding: 30px;
+      margin: 0;
+    }
+    h1 {
+      background: #f0e6dc;
+      padding: 20px;
+      border-radius: 15px;
+      display: inline-block;
+      margin-bottom: 40px;
+      font-size: 28px;
+    }
+    .decor { font-size: 20px; color: #a1887f; }
+    .question, .result { display: none; margin-top: 30px; }
+    .active { display: block; }
+    .card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 15px 20px;
+      margin: 15px auto;
+      width: 80%;
+      max-width: 400px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      font-size: 18px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    .card:hover {
+      background: #f5f0eb;
+      transform: translateY(-3px);
+    }
+    .title {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: #5d4037;
+    }
+    .final-title {
+      font-size: 26px;
+      margin-top: 20px;
+      color: #3e2723;
+    }
+    .final-text {
+      margin-top: 20px;
+      font-size: 22px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="decor">❈</div>
+  <h1>당신에게 알맞은 차를 골라드려요.</h1>
+  <div class="decor">❈</div>
+
+  <div id="q0" class="question active">
+    <div class="title">Q1. 나에게 가장 편안한 순간은?</div>
+    <div class="card" onclick="choose('녹차','q1')">따뜻한 햇살 아래 혼자 앉아있을 때</div>
+    <div class="card" onclick="choose('허브티','q1')">포근한 소파에 누워있을 때</div>
+    <div class="card" onclick="choose('홍차','q1')">비 오는 날, 책을 읽을 때</div>
+    <div class="card" onclick="choose('국화차','q1')">예쁜 꽃밭을 산책할 때</div>
+    <div class="card" onclick="choose('루이보스티','q1')">새로운 길을 걷기 시작할 때</div>
+  </div>
+
+  <div id="q1" class="question">
+    <div class="title">Q2. 친구들이 나를 표현할 때 가장 자주 하는 말은?</div>
+    <div class="card" onclick="choose('녹차','q2')">차분하고 안정적이다</div>
+    <div class="card" onclick="choose('허브티','q2')">따뜻하고 친절하다</div>
+    <div class="card" onclick="choose('홍차','q2')">깊이 있고 감성적이다</div>
+    <div class="card" onclick="choose('국화차','q2')">섬세하고 감수성이 풍부하다</div>
+    <div class="card" onclick="choose('루이보스티','q2')">자유롭고 모험심 있다</div>
+  </div>
+
+  <div id="q2" class="question">
+    <div class="title">Q3. 여행 스타일을 고른다면?</div>
+    <div class="card" onclick="choose('녹차','q3')">조용한 산속 힐링 여행</div>
+    <div class="card" onclick="choose('허브티','q3')">작은 마을에서 쉬어가기</div>
+    <div class="card" onclick="choose('홍차','q3')">유럽 감성 도시 투어</div>
+    <div class="card" onclick="choose('국화차','q3')">예쁜 정원과 미술관 순례</div>
+    <div class="card" onclick="choose('루이보스티','q3')">즉흥적인 로드 트립</div>
+  </div>
+
+  <div id="q3" class="question">
+    <div class="title">Q4. 나를 가장 잘 설명하는 단어는?</div>
+    <div class="card" onclick="choose('녹차','q4')">고요</div>
+    <div class="card" onclick="choose('허브티','q4')">평화</div>
+    <div class="card" onclick="choose('홍차','q4')">깊이</div>
+    <div class="card" onclick="choose('국화차','q4')">섬세함</div>
+    <div class="card" onclick="choose('루이보스티','q4')">자유</div>
+  </div>
+
+  <div id="q4" class="question">
+    <div class="title">Q5. 스트레스를 받을 때 나는?</div>
+    <div class="card" onclick="choose('녹차','result')">혼자 조용히 산책한다</div>
+    <div class="card" onclick="choose('허브티','result')">따뜻한 차를 마시며 쉬어간다</div>
+    <div class="card" onclick="choose('홍차','result')">음악을 들으며 감정에 빠진다</div>
+    <div class="card" onclick="choose('국화차','result')">그림을 그리거나 글을 쓴다</div>
+    <div class="card" onclick="choose('루이보스티','result')">새로운 일에 몰두해서 잊는다</div>
+  </div>
+
+  <div id="result" class="result">
+    <div class="final-title">당신에게 어울리는 차는...</div>
+    <div id="finalResult" class="final-text"></div>
+  </div>
+
+<script>
+  let scores = { '녹차': 0, '허브티': 0, '홍차': 0, '국화차': 0, '루이보스티': 0 };
+
+  function choose(choice, next) {
+    scores[choice]++;
+    document.querySelector('.question.active').classList.remove('active');
+    if (next === 'result') {
+      showResult();
+    } else {
+      document.getElementById(next).classList.add('active');
+    }
+  }
+
+  function showResult() {
+    let max = 0;
+    let finalChoice = '';
+    for (let key in scores) {
+      if (scores[key] > max) {
+        max = scores[key];
+        finalChoice = key;
+      }
+    }
+
+    let messages = {
+      '녹차': '🍃 당신이 고른 차는 녹차입니다.',
+      '허브티': '🌿 당신이 고른 차는 허브티입니다.',
+      '홍차': '🍂 당신이 고른 차는 홍차입니다.',
+      '국화차': '🌸 당신이 고른 차는 국화차입니다.',
+      '루이보스티': '🍁 당신이 고른 차는 루이보스티입니다.'
+    };
+
+    document.getElementById('result').classList.add('active');
+    document.getElementById('finalResult').innerHTML = messages[finalChoice];
+  }
+</script>
+
+</body>
+</html>
+"""
+
+# 저장할 경로
+simple_result_html_path = '/mnt/data/cafe_theme_simple_result.html'
+with open(simple_result_html_path, 'w', encoding='utf-8') as f:
+    f.write(cafe_simple_result_html)
+
+simple_result_html_path
